@@ -1,8 +1,29 @@
 import axios from "axios";
-import React from "react";
+import React, {useState} from "react";
 import { BASE_URL } from "../utils/constants";
 
 const Premium = () => {
+
+    const [isUserPremium, setIsUserPremium] = useState(false);
+
+   const verifyPremiumUser = async (response) => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/premium/verify`,
+        { withCredentials: true },
+      );
+      
+      if(res.data.isPremium){
+        setIsUserPremium(true);
+      }
+    } catch (error) {
+      console.error("Error verifying payment:", error);
+      alert("Payment verification failed. Please contact support.");
+    }
+  };
+    
+
+
   const handleBuyClick = async (type) => {
     const order = await axios.post(
       `${BASE_URL}/payment/create`,
@@ -27,7 +48,8 @@ const Premium = () => {
     },
     theme: {
         color: "#f37254",
-    }
+    },
+    handler: verifyPremiumUser
   };
 
     const rzp = new window.Razorpay(options);
@@ -36,7 +58,9 @@ const Premium = () => {
   };
   return (
     <div className="m-10">
-      <div className="flex w-full">
+      {isUserPremium ? (<div className="text-2xl font-bold text-green-500">Congratulations! you are now premium user</div>) : (
+        <>
+        <div className="flex w-full">
         <div className="card bg-base-300 rounded-box grid h-80 grow place-items-center">
           <h1 className="font-bold text-3xl">Silver Membership</h1>
           <ul>
@@ -69,6 +93,8 @@ const Premium = () => {
           </button>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 };
